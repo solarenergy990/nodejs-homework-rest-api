@@ -9,19 +9,17 @@ const db = mongoose.connect(uri, {
 });
 
 mongoose.connection.on('connected', () => {
-  console.log('Mongoose connection to DB');
+  console.log('Database connection successful');
 });
 
 mongoose.connection.on('error', err => {
-  console.log(`Mongoose connection error ${err.message}`);
+  console.log(`Database connection error ${err.message}`);
 });
-
-//  disconnected
 
 process.on('SIGINT', async () => {
   await mongoose.connection.close();
   console.log('Connection to DB closed');
-  process.exit();
+  process.exit(1);
 });
 
 module.exports = db;
