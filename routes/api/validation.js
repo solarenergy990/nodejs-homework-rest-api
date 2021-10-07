@@ -1,4 +1,4 @@
-const Joi = require("joi");
+const Joi = require('joi');
 
 const schemaContact = Joi.object({
   name: Joi.string()
@@ -7,24 +7,27 @@ const schemaContact = Joi.object({
     .min(1)
     .max(45)
     .required(),
-  email: Joi.string().email({
-    minDomainSegments: 2,
-    tlds: { allow: ["com", "net"] },
-  }).required,
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ['com', 'net'] },
+    })
+    .required(),
   phone: Joi.string()
     .trim()
     .regex(/^[0-9\s\-\(\)]{7,17}$/)
     .required(),
+  isFavorite: Joi.boolean(),
 });
 
 const schemaContactStatus = Joi.object({
   isFavorite: Joi.boolean().required(),
 });
 
-const pattern = "\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}";
+// const pattern = '\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}';
 
 const schemaId = Joi.object({
-  contactId: Joi.string().pattern(new RegExp(pattern)).required(),
+  contactId: Joi.string().required(),
 });
 
 const validate = async (schema, obj, res, next) => {
@@ -34,9 +37,9 @@ const validate = async (schema, obj, res, next) => {
   } catch (err) {
     console.log(err);
     res.status(400).json({
-      status: "error",
+      status: 'error',
       code: 400,
-      message: "missing required name field",
+      message: 'validation error',
     });
   }
 };
