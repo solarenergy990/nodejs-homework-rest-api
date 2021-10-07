@@ -17,17 +17,17 @@ const schemaContact = Joi.object({
     .trim()
     .regex(/^[0-9\s\-\(\)]{7,17}$/)
     .required(),
-  isFavorite: Joi.boolean(),
+  favorite: Joi.boolean(),
 });
 
 const schemaContactStatus = Joi.object({
-  isFavorite: Joi.boolean().required(),
+  favorite: Joi.boolean().required(),
 });
 
-// const pattern = '\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}';
+const pattern = '\\w{24}';
 
 const schemaId = Joi.object({
-  contactId: Joi.string().required(),
+  contactId: Joi.string().pattern(new RegExp(pattern)).required(),
 });
 
 const validate = async (schema, obj, res, next) => {

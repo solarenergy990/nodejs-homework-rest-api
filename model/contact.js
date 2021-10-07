@@ -16,7 +16,7 @@ const contactSchema = new Schema(
       required: [true, 'Set contact phone'],
       unique: [true, 'This phone number already exists'],
     },
-    isFavorite: {
+    favorite: {
       type: Boolean,
       default: false,
     },
@@ -24,6 +24,14 @@ const contactSchema = new Schema(
   {
     versionKey: false,
     timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        delete ret._id;
+        return ret;
+      },
+    },
+    toObject: { virtuals: true },
   },
 );
 
