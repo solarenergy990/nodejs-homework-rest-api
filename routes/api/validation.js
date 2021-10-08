@@ -33,13 +33,21 @@ const schemaId = Joi.object({
 const validate = async (schema, obj, res, next) => {
   try {
     await schema.validateAsync(obj);
+
     next();
   } catch (err) {
-    console.log(err);
-    res.status(400).json({
+    console.log(err.message);
+    if (!obj.favorite) {
+      return res.status(400).json({
+        status: 'error',
+        code: 400,
+        message: `missing field favorite: ${err.message.replace(/"/g, '')}`,
+      });
+    }
+    return res.status(400).json({
       status: 'error',
       code: 400,
-      message: 'validation error',
+      message: `validation error: ${err.message.replace(/"/g, '')}`,
     });
   }
 };

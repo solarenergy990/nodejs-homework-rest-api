@@ -77,13 +77,14 @@ const getFavoriteStatus = async (req, res, next) => {
       req.body,
     );
 
-    if (req.body.favorite === undefined) {
-      return res.status(400).json({
-        status: 'error',
-        code: 400,
-        message: 'missing field favorite',
-      });
-    } else if (contact) {
+    // if (!req.body.favorite) {
+    //   return res.status(400).json({
+    //     status: 'error',
+    //     code: 400,
+    //     message: 'missing field favorite',
+    //   });
+    // }
+    if (contact) {
       return res
         .status(200)
         .json({ status: 'success', code: 200, data: { contact } });
