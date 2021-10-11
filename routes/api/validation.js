@@ -1,4 +1,4 @@
-const Joi = require("joi");
+const Joi = require('joi');
 
 const schemaContact = Joi.object({
   name: Joi.string()
@@ -7,21 +7,24 @@ const schemaContact = Joi.object({
     .min(1)
     .max(45)
     .required(),
-  email: Joi.string().email({
-    minDomainSegments: 2,
-    tlds: { allow: ["com", "net"] },
-  }).required,
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ['com', 'net'] },
+    })
+    .required(),
   phone: Joi.string()
     .trim()
     .regex(/^[0-9\s\-\(\)]{7,17}$/)
     .required(),
+  favorite: Joi.boolean(),
 });
 
 const schemaContactStatus = Joi.object({
-  isFavorite: Joi.boolean().required(),
+  favorite: Joi.boolean().required(),
 });
 
-const pattern = "\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}";
+const pattern = '\\w{24}';
 
 const schemaId = Joi.object({
   contactId: Joi.string().pattern(new RegExp(pattern)).required(),
@@ -30,13 +33,21 @@ const schemaId = Joi.object({
 const validate = async (schema, obj, res, next) => {
   try {
     await schema.validateAsync(obj);
+
     next();
   } catch (err) {
-    console.log(err);
-    res.status(400).json({
-      status: "error",
+    console.log(err.message);
+    if (!obj.favorite) {
+      return res.status(400).json({
+        status: 'error',
+        code: 400,
+        message: `missing field favorite: ${err.message.replace(/"/g, '')}`,
+      });
+    }
+    return res.status(400).json({
+      status: 'error',
       code: 400,
-      message: "missing required name field",
+      message: `validation error: ${err.message.replace(/"/g, '')}`,
     });
   }
 };
