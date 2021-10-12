@@ -14,19 +14,27 @@ const {
   validateId,
 } = require('./validation');
 
-router.get('/', getContacts);
+const guard = require('../../helpers/guard');
 
-router.get('/:contactId', validateId, getContact);
+router.get('/', guard, getContacts);
 
-router.post('/', validateContact, createContact);
+router.get('/:contactId', guard, validateId, getContact);
 
-router.delete('/:contactId', validateId, removeContact);
+router.post('/', guard, validateContact, createContact);
 
-router.put('/:contactId', [validateId, validateContact], updateContact);
+router.delete('/:contactId', guard, validateId, removeContact);
+
+router.put(
+  '/:contactId',
+  guard,
+  [(validateId, validateContact)],
+  updateContact,
+);
 
 router.patch(
   '/:contactId/favorite/',
-  [validateId, validateContactStatus],
+  guard,
+  [(validateId, validateContactStatus)],
   getFavoriteStatus,
 );
 
