@@ -9,7 +9,12 @@ const createUser = async options => {
   return await user.save();
 };
 
+const updateToken = async (id, token) => {
+  return await User.updateOne({ _id: id }, { token });
+};
+
 module.exports = {
   findByEmail,
   createUser,
+  updateToken,
 };
