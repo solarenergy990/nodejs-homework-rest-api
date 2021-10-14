@@ -77,6 +77,8 @@ const getFavoriteStatus = async (req, res, next) => {
       req.body,
     );
 
+    // console.log(req.body.favorite);
+    // console.log();
     // if (!req.body.favorite) {
     //   return res.status(400).json({
     //     status: 'error',
