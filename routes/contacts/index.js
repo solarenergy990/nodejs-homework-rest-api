@@ -15,27 +15,28 @@ const {
 } = require('./validation');
 
 const guard = require('../../helpers/guard');
+const wrapError = require('../../helpers/errorHandler');
 
-router.get('/', guard, getContacts);
+router.get('/', guard, wrapError(getContacts));
 
-router.get('/:contactId', guard, validateId, getContact);
+router.get('/:contactId', guard, validateId, wrapError(getContact));
 
-router.post('/', guard, validateContact, createContact);
+router.post('/', guard, validateContact, wrapError(createContact));
 
-router.delete('/:contactId', guard, validateId, removeContact);
+router.delete('/:contactId', guard, validateId, wrapError(removeContact));
 
 router.put(
   '/:contactId',
   guard,
   [(validateId, validateContact)],
-  updateContact,
+  wrapError(updateContact),
 );
 
 router.patch(
   '/:contactId/favorite/',
   guard,
   [(validateId, validateContactStatus)],
-  getFavoriteStatus,
+  wrapError(getFavoriteStatus),
 );
 
 module.exports = router;

@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const Users = require('../repository/users');
+
 const { HttpCode } = require('../config/constants');
+const { CustomError } = require('../helpers/customError');
 require('dotenv').config();
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
@@ -61,8 +63,27 @@ const logout = async (req, res, next) => {
   return res.status(HttpCode.NO_CONTENT).json({ test: 'test' });
 };
 
+const getCurrentUser = async (req, res, next) => {
+  const userId = await req.user._id;
+
+  const user = await Users.findById(userId);
+
+  const { email, subscription } = user;
+  if (user) {
+    return res.status(HttpCode.OK).json({
+      status: 'success',
+      code: HttpCode.OK,
+
+      // Not sure how to extract user properties here. Is that OK?
+      data: { user: { email, subscription } },
+    });
+  }
+  throw new CustomError(HttpCode.NOT_FOUND, 'Not Found');
+};
+
 module.exports = {
   signup,
   signin,
   logout,
+  getCurrentUser,
 };
