@@ -78,7 +78,7 @@ const getCurrentUser = async (req, res, next) => {
       data: { user: { email, subscription } },
     });
   }
-  throw new CustomError(HttpCode.NOT_FOUND, 'Not Found');
+  throw new CustomError(HttpCode.UNAUTHORIZED, 'Not authorized');
 };
 
 module.exports = {
