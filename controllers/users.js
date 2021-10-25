@@ -1,0 +1,89 @@
+const jwt = require('jsonwebtoken');
+const Users = require('../repository/users');
+
+const { HttpCode } = require('../config/constants');
+const { CustomError } = require('../helpers/customError');
+require('dotenv').config();
+const SECRET_KEY = process.env.JWT_SECRET_KEY;
+
+const signup = async (req, res, next) => {
+  const { password, email, subscription } = req.body;
+  const user = await Users.findByEmail(email);
+  if (user) {
+    return res.status(HttpCode.CONFLICT).json({
+      status: 'error',
+      code: HttpCode.CONFLICT,
+      message: 'Email already exists',
+    });
+  }
+  try {
+    const newUser = await Users.createUser({ password, email, subscription });
+    return res.status(HttpCode.CREATED).json({
+      status: 'success',
+      code: HttpCode.CREATED,
+      data: {
+        id: newUser.id,
+        email: newUser.email,
+        subscription: newUser.subscription,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+  res.json();
+};
+
+const signin = async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await Users.findByEmail(email);
+  const isValidPassword = await user.isValidPassword(password); // if user, to put ? after user
+  if (!user || !isValidPassword) {
+    return res.status(HttpCode.UNAUTHORIZED).json({
+      status: 'error',
+      code: HttpCode.UNAUTHORIZED,
+      message: 'Invalid credentials',
+    });
+  }
+  const id = user._id;
+  const payload = { id };
+  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
+  await Users.updateToken(id, token);
+  return res.status(HttpCode.OK).json({
+    status: 'success',
+    code: HttpCode.OK,
+    data: {
+      token,
+    },
+  });
+};
+
+const logout = async (req, res, next) => {
+  const id = req.user._id;
+  await Users.updateToken(id, null);
+  return res.status(HttpCode.NO_CONTENT).json({ test: 'test' });
+};
+
+const getCurrentUser = async (req, res, next) => {
+  const userId = await req.user._id;
+
+  const user = await Users.findById(userId);
+
+  const { email, subscription } = user;
+  if (user) {
+    return res.status(HttpCode.OK).json({
+      status: 'success',
+      code: HttpCode.OK,
+
+      // Not sure how to extract user properties here. Is that OK?
+      data: { user: { email, subscription } },
+    });
+  }
+  throw new CustomError(HttpCode.UNAUTHORIZED, 'Not authorized');
+};
+
+module.exports = {
+  signup,
+  signin,
+  logout,
+  getCurrentUser,
+};

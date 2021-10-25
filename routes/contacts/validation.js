@@ -1,11 +1,12 @@
 const Joi = require('joi');
+const { HttpCode, Numbers } = require('../../config/constants');
 
 const schemaContact = Joi.object({
   name: Joi.string()
     .trim()
     .regex(/^[a-z\d\s\-\.\,]*$/i)
-    .min(1)
-    .max(45)
+    .min(Numbers.MIN_NAME_LENGTH)
+    .max(Numbers.MAX_NAME_LENGTH)
     .required(),
   email: Joi.string()
     .email({
@@ -38,15 +39,15 @@ const validate = async (schema, obj, res, next) => {
   } catch (err) {
     console.log(err.message);
     if (!obj.favorite) {
-      return res.status(400).json({
+      return res.status(HttpCode.BAD_REQUEST).json({
         status: 'error',
-        code: 400,
+        code: HttpCode.BAD_REQUEST,
         message: `missing field favorite: ${err.message.replace(/"/g, '')}`,
       });
     }
-    return res.status(400).json({
+    return res.status(HttpCode.BAD_REQUEST).json({
       status: 'error',
-      code: 400,
+      code: HttpCode.BAD_REQUEST,
       message: `validation error: ${err.message.replace(/"/g, '')}`,
     });
   }
