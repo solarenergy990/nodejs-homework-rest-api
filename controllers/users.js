@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
-
-const path = require('path');
+const fs = require('fs/promises');
+// const path = require('path');
 const Users = require('../repository/users');
-const UploadService = require('../services/file-upload');
+// const UploadService = require('../services/file-upload');
+const UploadService = require('../services/cloud-upload');
 const { HttpCode } = require('../config/constants');
 const { CustomError } = require('../helpers/customError');
-const mkdirp = require('mkdirp');
+// const mkdirp = require('mkdirp');
 require('dotenv').config();
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
@@ -83,15 +84,41 @@ const getCurrentUser = async (req, res, next) => {
   throw new CustomError(HttpCode.UNAUTHORIZED, 'Not authorized');
 };
 
+// Local storage
+// const uploadAvatar = async (req, res, next) => {
+//   const id = String(req.user._id);
+//   const file = req.file;
+//   const AVATAR_OF_USERS = process.env.AVATAR_OF_USERS;
+//   const dest = path.join(AVATAR_OF_USERS, id);
+//   await mkdirp(dest);
+//   const uploadService = new UploadService(dest);
+//   const avatarUrl = await uploadService.save(file, id);
+//   await Users.updateAvatar(id, avatarUrl);
+
+//   return res.status(HttpCode.OK).json({
+//     status: 'success',
+//     code: HttpCode.OK,
+//     data: { avatar: avatarUrl },
+//   });
+// };
+
+// Cloud storage
 const uploadAvatar = async (req, res, next) => {
-  const id = String(req.user._id);
+  const { id, idUserCloud } = req.user;
   const file = req.file;
-  const AVATAR_OF_USERS = process.env.AVATAR_OF_USERS;
-  const dest = path.join(AVATAR_OF_USERS, id);
-  await mkdirp(dest);
+
+  const dest = 'Avatars';
   const uploadService = new UploadService(dest);
-  const avatarUrl = await uploadService.save(file, id);
-  await Users.updateAvatar(id, avatarUrl);
+  const { avatarUrl, returnIdUserCloud } = await uploadService.save(
+    file.path,
+    idUserCloud,
+  );
+  await Users.updateAvatar(id, avatarUrl, returnIdUserCloud);
+  try {
+    await fs.unlink(file.path);
+  } catch (error) {
+    console.log(error);
+  }
 
   return res.status(HttpCode.OK).json({
     status: 'success',
