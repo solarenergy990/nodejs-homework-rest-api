@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken');
+
+const path = require('path');
 const Users = require('../repository/users');
 const UploadService = require('../services/file-upload');
 const { HttpCode } = require('../config/constants');
 const { CustomError } = require('../helpers/customError');
+const mkdirp = require('mkdirp');
 require('dotenv').config();
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
@@ -81,11 +84,15 @@ const getCurrentUser = async (req, res, next) => {
 };
 
 const uploadAvatar = async (req, res, next) => {
-  const id = req.user._id;
+  const id = String(req.user._id);
   const file = req.file;
-  const UploadService = new UploadService();
-  const avatarUrl = await UploadService.save(file, id);
+  const AVATAR_OF_USERS = process.env.AVATAR_OF_USERS;
+  const dest = path.join(AVATAR_OF_USERS, id);
+  await mkdirp(dest);
+  const uploadService = new UploadService(dest);
+  const avatarUrl = await uploadService.save(file, id);
   await Users.updateAvatar(id, avatarUrl);
+
   return res.status(HttpCode.OK).json({
     status: 'success',
     code: HttpCode.OK,
