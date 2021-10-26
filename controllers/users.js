@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Users = require('../repository/users');
-
+const UploadService = require('../services/file-upload');
 const { HttpCode } = require('../config/constants');
 const { CustomError } = require('../helpers/customError');
 require('dotenv').config();
@@ -25,6 +25,7 @@ const signup = async (req, res, next) => {
         id: newUser.id,
         email: newUser.email,
         subscription: newUser.subscription,
+        avatar: newUser.avatar,
       },
     });
   } catch (error) {
@@ -73,12 +74,23 @@ const getCurrentUser = async (req, res, next) => {
     return res.status(HttpCode.OK).json({
       status: 'success',
       code: HttpCode.OK,
-
-      // Not sure how to extract user properties here. Is that OK?
       data: { user: { email, subscription } },
     });
   }
   throw new CustomError(HttpCode.UNAUTHORIZED, 'Not authorized');
+};
+
+const uploadAvatar = async (req, res, next) => {
+  const id = req.user._id;
+  const file = req.file;
+  const UploadService = new UploadService();
+  const avatarUrl = await UploadService.save(file, id);
+  await Users.updateAvatar(id, avatarUrl);
+  return res.status(HttpCode.OK).json({
+    status: 'success',
+    code: HttpCode.OK,
+    data: { avatar: avatarUrl },
+  });
 };
 
 module.exports = {
@@ -86,4 +98,5 @@ module.exports = {
   signin,
   logout,
   getCurrentUser,
+  uploadAvatar,
 };
