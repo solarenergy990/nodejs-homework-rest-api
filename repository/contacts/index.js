@@ -46,7 +46,7 @@ const getContactById = async (contactId, userId) => {
     path: 'owner',
     select: 'email subscription createdAt updatedAt',
   });
-  console.log(result);
+
   return result;
 };
 
