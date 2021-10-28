@@ -5,6 +5,8 @@ const listContacts = async (userId, query) => {
   //   path: 'owner',
   //   select: 'email subscription createdAt updatedAt',
   // });
+
+  // return results;
   const {
     sortBy,
     sortByDesc,
@@ -44,6 +46,7 @@ const getContactById = async (contactId, userId) => {
     path: 'owner',
     select: 'email subscription createdAt updatedAt',
   });
+
   return result;
 };
 
