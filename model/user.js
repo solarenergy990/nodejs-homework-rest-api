@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const gravatar = require('gravatar');
+const crypto = require('crypto');
 const { SubscriptionType } = require('../config/constants');
 const bcrypt = require('bcryptjs');
 // const { string } = require('joi');
@@ -42,6 +43,12 @@ const userSchema = new Schema(
       },
     },
     idUserCloud: { type: String, default: null },
+    isVerified: { type: Boolean, default: false },
+    verifyToken: {
+      type: String,
+      required: [true, 'Verification token is required'],
+      default: crypto.randomUUID(),
+    },
   },
   {
     versionKey: false,
